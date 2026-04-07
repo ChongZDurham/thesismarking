@@ -1,0 +1,5 @@
+requests
+pyinstaller
+python-docx
+pypdf
+pywin32; platform_system == "Windows"
