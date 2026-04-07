@@ -1,0 +1,49 @@
+name: Build Thesis Reviewer Mac App
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - "thesis_reviewer_app.py"
+      - "thesis_reviewer_requirements.txt"
+      - "build_thesis_reviewer_mac.sh"
+      - "build_thesis_reviewer_mac.command"
+      - ".github/workflows/build-thesis-reviewer-mac.yml"
+
+jobs:
+  build-mac-app:
+    runs-on: macos-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Show Python version
+        run: python3 --version
+
+      - name: Make build scripts executable
+        run: chmod +x build_thesis_reviewer_mac.sh build_thesis_reviewer_mac.command
+
+      - name: Build macOS app bundle
+        run: bash ./build_thesis_reviewer_mac.sh
+
+      - name: Zip app bundle
+        run: ditto -c -k --sequesterRsrc --keepParent dist_thesis_reviewer_mac/ThesisReviewerMac.app ThesisReviewerMac.app.zip
+
+      - name: Upload app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ThesisReviewerMac-app
+          path: ThesisReviewerMac.app.zip
+          if-no-files-found: error
+          retention-days: 14
